@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "marketplace-lister"
+version = "0.1.0"
+description = "Marketplace Lister: publish items to multiple marketplaces via adapters"
+readme = "README.md"
+authors = [{name = "JustFeo"}]
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "SQLAlchemy>=1.4",
+    "alembic>=1.13",
+    "psycopg2-binary>=2.9",
+    "pydantic>=2.8",
+    "python-multipart>=0.0.9",
+    "Pillow>=10.0",
+    "boto3>=1.34",
+    "httpx>=0.27",
+    "celery>=5.3",
+    "redis>=5.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7",
+    "typer>=0.12",
+    "loguru>=0.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/JustFeo/marketplace-lister"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203, W503"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"] 

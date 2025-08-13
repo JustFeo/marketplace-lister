@@ -1,0 +1,38 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mlister
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/mlister
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    command: uvicorn src.mlister.main:app --host 0.0.0.0 --port 8000 --reload
+  worker:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/mlister
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    command: celery -A src.mlister.tasks.celery_app.celery_app worker -l info 
