@@ -19,10 +19,14 @@ jobs:
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
       redis:
         image: redis:7
         ports: [ '6379:6379' ]
+    env:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/mlister
+      REDIS_URL: redis://localhost:6379/0
+      PYTHONPATH: src
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -38,13 +42,14 @@ jobs:
           black --check .
           isort --check-only .
           flake8 .
+      - name: Wait for Postgres
+        run: |
+          for i in {1..20}; do
+            pg_isready -h localhost -p 5432 && break
+            sleep 2
+          done
       - name: Prepare DB
-        env:
-          DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/mlister
         run: |
           alembic upgrade head
       - name: Tests
-        env:
-          DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/mlister
-          REDIS_URL: redis://localhost:6379/0
-        run: pytest -q 
+        run: python -m pytest -q 
